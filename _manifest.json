@@ -1,0 +1,48 @@
+{
+  "manifest_version": 2,
+  "id": "WiseXin.discord-adapter",
+  "version": "1.0.0",
+  "name": "Discord 适配器 / Discord Adapter",
+  "description": "Discord 平台双工消息网关适配器，让麦麦无缝接入 Discord 服务器与私聊(DM)，支持图文消息与引用回复。",
+  "author": {
+    "name": "WiseXin",
+    "url": "https://github.com/WiseXin"
+  },
+  "license": "MIT",
+  "urls": {
+    "repository": "https://github.com/WiseXin/MaiBot-Discord-Adapter",
+    "homepage": "https://github.com/WiseXin/MaiBot-Discord-Adapter",
+    "documentation": "https://github.com/WiseXin/MaiBot-Discord-Adapter/blob/main/README.md",
+    "issues": "https://github.com/WiseXin/MaiBot-Discord-Adapter/issues"
+  },
+  "plugin_type": "adapter",
+  "display": {
+    "icon": {
+      "type": "lucide",
+      "value": "bot"
+    }
+  },
+  "host_application": {
+    "min_version": "1.3.0",
+    "max_version": "1.3.99"
+  },
+  "sdk": {
+    "min_version": "2.0.0",
+    "max_version": "2.99.99"
+  },
+  "dependencies": [
+    {
+      "type": "python_package",
+      "name": "discord.py",
+      "version_spec": ">=2.3.0"
+    }
+  ],
+  "capabilities": [],
+  "i18n": {
+    "default_locale": "zh-CN",
+    "supported_locales": [
+      "zh-CN",
+      "en-US"
+    ]
+  }
+}
