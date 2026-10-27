@@ -173,5 +173,30 @@ def parse_host_outbound_message(
                     image_urls.append(sdata)
             elif stype == "reply":
                 reply_to = str(sdata or "")
+            elif stype == "music":
+                # 兼容音乐卡片转为 Discord 可直接预览和点击的卡片链接
+                if isinstance(sdata, dict):
+                    m_type = str(sdata.get("type") or "")
+                    m_id = str(sdata.get("id") or "")
+                    m_url = str(sdata.get("url") or "")
+                    m_title = str(sdata.get("title") or "")
+                    m_content = str(sdata.get("content") or "")
+                    
+                    if m_url:
+                        info = f"{m_title} - {m_content}".strip(" -")
+                        text_parts.append(f"🎵 正在播放：{info}\n{m_url}" if info else f"🎵 正在播放：{m_url}")
+                    elif m_type == "163" and m_id:
+                        text_parts.append(f"🎵 正在播放网易云音乐：\nhttps://music.163.com/song?id={m_id}")
+                    elif m_type == "qq" and m_id:
+                        text_parts.append(f"🎵 正在播放QQ音乐：\nhttps://y.qq.com/n/ryqq/songDetail/{m_id}")
+                    elif m_title:
+                        text_parts.append(f"🎵 歌曲：{m_title}")
+            elif stype in ("voice", "voiceurl"):
+                if isinstance(sdata, dict):
+                    v_url = str(sdata.get("url") or "")
+                    if v_url.startswith("http"):
+                        text_parts.append(f"🎙️ 语音音频：{v_url}")
+                elif isinstance(sdata, str) and sdata.startswith("http"):
+                    text_parts.append(f"🎙️ 语音音频：{sdata}")
 
     return channel_id, target_user_id, "".join(text_parts), image_urls, reply_to
