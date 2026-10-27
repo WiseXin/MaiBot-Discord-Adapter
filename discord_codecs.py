@@ -1,6 +1,7 @@
 """Discord 与 MaiBot 宿主消息格式双向编解码器。"""
 
 from typing import Any, Dict, List, Optional, Tuple
+import base64
 import discord
 try:
     from .constants import DEFAULT_SCOPE, MAX_DISCORD_MESSAGE_LENGTH, PLATFORM_NAME
@@ -8,7 +9,7 @@ except ImportError:
     from constants import DEFAULT_SCOPE, MAX_DISCORD_MESSAGE_LENGTH, PLATFORM_NAME
 
 
-def discord_message_to_host(
+async def discord_message_to_host(
     discord_msg: discord.Message,
     bot_account_id: str,
 ) -> Dict[str, Any]:
@@ -30,14 +31,45 @@ def discord_message_to_host(
             "data": clean_text,
         })
 
-    # 3. 提取附件（图片、文件）
+    # 3. 提取附件（图片、语音/音频、文件）
     for attachment in discord_msg.attachments:
-        content_type = getattr(attachment, "content_type", "") or ""
+        content_type = (getattr(attachment, "content_type", "") or "").lower()
+        filename = (attachment.filename or "").lower()
+        is_voice = getattr(attachment, "is_voice_message", False)
+        if callable(is_voice):
+            try:
+                is_voice = is_voice()
+            except Exception:
+                is_voice = False
+
+        is_audio = (
+            is_voice
+            or content_type.startswith("audio/")
+            or filename.endswith((".ogg", ".mp3", ".wav", ".m4a", ".aac", ".opus", ".flac", ".oga"))
+            or "voice-message" in filename
+        )
+
         if content_type.startswith("image/"):
             segments.append({
                 "type": "image",
                 "data": attachment.url,
             })
+        elif is_audio:
+            try:
+                # 语音识别需向宿主提供 voice 类型的 base64 音频字节串
+                audio_bytes = await attachment.read()
+                b64_audio = base64.b64encode(audio_bytes).decode("ascii")
+                segments.append({
+                    "type": "voice",
+                    "data": b64_audio,
+                })
+            except Exception:
+                # 网络或读取异常时优雅降级为文件附件
+                segments.append({
+                    "type": "file",
+                    "data": attachment.url,
+                    "name": attachment.filename,
+                })
         else:
             segments.append({
                 "type": "file",

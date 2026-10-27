@@ -186,7 +186,7 @@ class DiscordAdapterPlugin(MaiBotPlugin):
             self._user_dm_map[str(message.author.id)] = str(message.channel.id)
 
         bot_account_id = str(self._bot_user.id)
-        host_payload = discord_message_to_host(message, bot_account_id)
+        host_payload = await discord_message_to_host(message, bot_account_id)
         msg_id_str = str(message.id)
 
         accepted = await self.ctx.gateway.route_message(
