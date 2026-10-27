@@ -184,16 +184,33 @@ class DiscordAdapterPlugin(MaiBotPlugin):
 
     async def _start_client(self, config: DiscordAdapterConfig) -> None:
         """启动 Discord 客户端异步常驻任务。"""
+        token_clean = config.token.strip()
         self._client = DiscordGatewayClient(
             config=config,
             on_ready_cb=self._handle_discord_ready,
             on_inbound_cb=self._handle_discord_inbound,
+            enable_message_content=True,
         )
 
         async def _client_runner():
             try:
                 self.ctx.logger.info("正在连接 Discord Gateway...")
-                await self._client.start(config.token.strip())
+                await self._client.start(token_clean)
+            except discord.errors.PrivilegedIntentsRequired:
+                self.ctx.logger.warning(
+                    "【Discord 提示】检测到开发者后台未开启 Privileged Intents (Message Content Intent)。"
+                    "正在自动降级为标准模式连接（私聊与@提及均可正常使用）..."
+                )
+                self._client = DiscordGatewayClient(
+                    config=config,
+                    on_ready_cb=self._handle_discord_ready,
+                    on_inbound_cb=self._handle_discord_inbound,
+                    enable_message_content=False,
+                )
+                try:
+                    await self._client.start(token_clean)
+                except Exception as exc:
+                    self.ctx.logger.error("Discord 降级模式客户端运行异常: %s", exc, exc_info=True)
             except asyncio.CancelledError:
                 pass
             except discord.LoginFailure:

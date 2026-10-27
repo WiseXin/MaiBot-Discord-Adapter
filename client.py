@@ -23,6 +23,7 @@ class DiscordGatewayClient(discord.Client):
         config: DiscordAdapterConfig,
         on_ready_cb: Callable[[discord.User], Coroutine[None, None, None]],
         on_inbound_cb: Callable[[discord.Message], Coroutine[None, None, None]],
+        enable_message_content: bool = True,
         *args,
         **kwargs,
     ) -> None:
@@ -30,12 +31,13 @@ class DiscordGatewayClient(discord.Client):
         intents.messages = True
         intents.dm_messages = True
         intents.guild_messages = True
-        intents.message_content = True  # 需要在 Discord 开发者后台开启
+        intents.message_content = enable_message_content
 
         super().__init__(intents=intents, *args, **kwargs)
         self.config = config
         self.on_ready_cb = on_ready_cb
         self.on_inbound_cb = on_inbound_cb
+        self.enable_message_content = enable_message_content
         self._is_ready_fired = False
 
     async def on_ready(self) -> None:
