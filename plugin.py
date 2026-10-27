@@ -44,6 +44,15 @@ class DiscordAdapterPlugin(MaiBotPlugin):
                 "【Discord 适配器】未检测到有效 token！请前往 WebUI 插件设置或 config.toml "
                 "中填入 Discord Bot Token，保存后重启或等待连接。"
             )
+            try:
+                await self.ctx.gateway.update_state(
+                    gateway_name=GATEWAY_NAME,
+                    ready=False,
+                    platform=PLATFORM_NAME,
+                    reason="未检测到有效 token (Discord token is not configured)",
+                )
+            except Exception:
+                pass
             return
 
         await self._start_client(config)

@@ -49,7 +49,11 @@ Modern, reliable, and lightweight **Discord Duplex Message Gateway Adapter** for
 In WebUI or `config.toml`:
 
 ```toml
-[WiseXin.discord-adapter]
+[plugin]
+enabled = true
+config_version = "1.0.0"
+
+[bot]
 token = "YOUR_DISCORD_BOT_TOKEN"
 allow_dm = true
 require_mention_in_guild = false

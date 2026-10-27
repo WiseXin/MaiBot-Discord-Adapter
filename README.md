@@ -80,15 +80,30 @@ pip install "discord.py>=2.3.0"
 
 插件配置文件为 `config.toml`，也可在 WebUI 中可视化修改：
 
+```toml
+[plugin]
+enabled = true
+config_version = "1.0.0"
+
+[bot]
+token = "YOUR_DISCORD_BOT_TOKEN"
+allow_dm = true
+require_mention_in_guild = false
+send_typing_indicator = true
+channel_whitelist = []
+channel_blacklist = []
+user_blacklist = []
+```
+
 | 配置项 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
-| `token` | `str` | `""` | **必填**。从 Discord 开发者后台获取的 Bot Token |
-| `allow_dm` | `bool` | `true` | 是否允许在 Discord 私聊(DM)中与麦麦对话 |
-| `require_mention_in_guild` | `bool` | `false` | 在服务器频道中是否必须@机器人；设为 `true` 可防止群聊刷屏 |
-| `channel_whitelist` | `list[str]` | `[]` | 频道白名单（填 Channel ID）；留空表示允许全部频道 |
-| `channel_blacklist` | `list[str]` | `[]` | 频道黑名单；忽略这些频道的所有消息 |
-| `user_blacklist` | `list[str]` | `[]` | 用户黑名单（填 User ID）；忽略这些用户 |
-| `send_typing_indicator` | `bool` | `true` | 发送回复前是否展示“正在输入中...”状态 |
+| `bot.token` | `str` | `""` | **必填**。从 Discord 开发者后台获取的 Bot Token |
+| `bot.allow_dm` | `bool` | `true` | 是否允许在 Discord 私聊(DM)中与麦麦对话 |
+| `bot.require_mention_in_guild` | `bool` | `false` | 在服务器频道中是否必须@机器人；设为 `true` 可防止群聊刷屏 |
+| `bot.channel_whitelist` | `list[str]` | `[]` | 频道白名单（填 Channel ID）；留空表示允许全部频道 |
+| `bot.channel_blacklist` | `list[str]` | `[]` | 频道黑名单；忽略这些频道的所有消息 |
+| `bot.user_blacklist` | `list[str]` | `[]` | 用户黑名单（填 User ID）；忽略这些用户 |
+| `bot.send_typing_indicator` | `bool` | `true` | 发送回复前是否展示“正在输入中...”状态 |
 
 ---
 
