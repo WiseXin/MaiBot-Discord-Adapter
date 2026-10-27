@@ -114,7 +114,8 @@ class DiscordGatewayClient(discord.Client):
             except Exception as exc:
                 LOGGER.warning("获取频道 %s 失败: %s", channel_id, exc)
 
-        if destination is None and user_id:
+        bot_id_str = str(self.user.id) if self.user else ""
+        if destination is None and user_id and str(user_id) != bot_id_str:
             try:
                 user = await self.fetch_user(int(user_id))
                 destination = await user.create_dm()
