@@ -2,7 +2,7 @@
 
 [![MaiBot Plugin SDK](https://img.shields.io/badge/MaiBot%20SDK-v2.0+-blue.svg)](https://docs.maibot.chat)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Python: 3.10+](https://img.shields.io/badge/Python-3.10+-brightgreen.svg)](https://www.python.org/)
+[![Python: 3.12+](https://img.shields.io/badge/Python-3.12+-brightgreen.svg)](https://www.python.org/)
 
 专为 [MaiBot (麦麦)](https://github.com/Mai-with-u/MaiBot) 打造的现代化、高可用 **Discord 双工消息网关适配器**。通过 Discord 官方 Bot API 直连，彻底摆脱手机端容器、协议逆向和风控下线的烦恼。
 
@@ -35,10 +35,10 @@
 3. 在左侧菜单点击 **Bot**，点击 **Reset Token** 生成并复制你的 **Bot Token**（妥善保管，切勿泄露）。
 
 ### 2. 开启必要权限开关 (Intents)
-在 Bot 配置页面向下滚动到 **Privileged Gateway Intents**，务必将以下开关点亮打开：
-- ✅ **Presence Intent**
-- ✅ **Server Members Intent**
-- ✅ **Message Content Intent**（核心：允许机器人读取消息正文）
+在 Bot 配置页面向下滚动到 **Privileged Gateway Intents**，点亮开启：
+- ✅ **Message Content Intent**（核心权限：允许机器人读取频道消息正文）
+
+> 💡 **安全提示**：代码已精简权限，无需开启 `Presence Intent` 或 `Server Members Intent`，最小化权限授予更安全合规。
 
 保存修改（Save Changes）。
 

@@ -2,7 +2,7 @@
 
 [![MaiBot Plugin SDK](https://img.shields.io/badge/MaiBot%20SDK-v2.0+-blue.svg)](https://docs.maibot.chat)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Python: 3.10+](https://img.shields.io/badge/Python-3.10+-brightgreen.svg)](https://www.python.org/)
+[![Python: 3.12+](https://img.shields.io/badge/Python-3.12+-brightgreen.svg)](https://www.python.org/)
 
 Modern, reliable, and lightweight **Discord Duplex Message Gateway Adapter** for [MaiBot](https://github.com/Mai-with-u/MaiBot). Connect your MaiBot directly to Discord with official Bot APIs—no containers, no phone emulation, and zero risk control issues.
 
@@ -33,9 +33,8 @@ Modern, reliable, and lightweight **Discord Duplex Message Gateway Adapter** for
 2. **Enable Privileged Gateway Intents**:
    - In the Bot tab, scroll down to **Privileged Gateway Intents**.
    - Enable:
-     - `Presence Intent`
-     - `Server Members Intent`
-     - `Message Content Intent` (required to read messages).
+     - `Message Content Intent` (required to read message text).
+   *(Note: `Presence Intent` and `Server Members Intent` are not required, adhering to the principle of least privilege.)*
 3. **Invite the Bot**:
    - Navigate to **OAuth2** -> **URL Generator**.
    - Check `bot` under **Scopes**.
