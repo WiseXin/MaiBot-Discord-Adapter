@@ -2,6 +2,7 @@
 
 from typing import Any, Dict, List, Optional, Tuple
 import base64
+import hashlib
 import discord
 try:
     from .constants import DEFAULT_SCOPE, MAX_DISCORD_MESSAGE_LENGTH, PLATFORM_NAME
@@ -56,12 +57,15 @@ async def discord_message_to_host(
             })
         elif is_audio:
             try:
-                # 语音识别需向宿主提供 voice 类型的 base64 音频字节串
+                # 语音识别需向宿主提供 voice 类型的 binary_data_base64，data 留空以触发 ASR 转写
                 audio_bytes = await attachment.read()
                 b64_audio = base64.b64encode(audio_bytes).decode("ascii")
+                audio_hash = hashlib.sha256(audio_bytes).hexdigest()
                 segments.append({
                     "type": "voice",
-                    "data": b64_audio,
+                    "data": "",
+                    "hash": audio_hash,
+                    "binary_data_base64": b64_audio,
                 })
             except Exception:
                 # 网络或读取异常时优雅降级为文件附件
