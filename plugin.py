@@ -116,6 +116,13 @@ class DiscordAdapterPlugin(MaiBotPlugin):
             channel_id, user_id, text, image_urls, reply_to = parse_host_outbound_message(
                 message, route=route, bot_id=bot_id_str
             )
+            self.ctx.logger.info(
+                "Discord 出站解析完成: channel_id=%s, user_id=%s, text_len=%d, text_preview=%r",
+                channel_id,
+                user_id,
+                len(text),
+                text[:60] if text else "",
+            )
 
             # 兜底查找缓存：若私聊出站未直接拿到 channel_id，通过 user_id 反查 DM 频道
             if not channel_id and user_id and user_id in self._user_dm_map:

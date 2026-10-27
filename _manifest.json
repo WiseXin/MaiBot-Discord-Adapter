@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "id": "WiseXin.discord-adapter",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "name": "Discord 适配器 / Discord Adapter",
   "description": "Discord 平台双工消息网关适配器，让麦麦无缝接入 Discord 服务器与私聊(DM)，支持图文消息与引用回复。",
   "author": {
