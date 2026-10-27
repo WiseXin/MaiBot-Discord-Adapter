@@ -33,6 +33,7 @@ class DiscordAdapterPlugin(MaiBotPlugin):
         self._runner_task: Optional[asyncio.Task] = None
         self._bot_user: Optional[discord.User] = None
         self._is_gateway_ready: bool = False
+        self._user_dm_map: Dict[str, str] = {}
 
     async def on_load(self) -> None:
         """插件加载生命周期回调。"""
@@ -102,7 +103,7 @@ class DiscordAdapterPlugin(MaiBotPlugin):
         **kwargs: Any,
     ) -> Dict[str, Any]:
         """出站：接收 Host 消息并转发到对应的 Discord 频道或私聊。"""
-        del route, metadata, kwargs
+        del metadata, kwargs
 
         if self._client is None or self._client.is_closed() or not self._is_gateway_ready:
             return {
@@ -111,7 +112,15 @@ class DiscordAdapterPlugin(MaiBotPlugin):
             }
 
         try:
-            channel_id, user_id, text, image_urls, reply_to = parse_host_outbound_message(message)
+            bot_id_str = str(self._bot_user.id) if self._bot_user else None
+            channel_id, user_id, text, image_urls, reply_to = parse_host_outbound_message(
+                message, route=route, bot_id=bot_id_str
+            )
+
+            # 兜底查找缓存：若私聊出站未直接拿到 channel_id，通过 user_id 反查 DM 频道
+            if not channel_id and user_id and user_id in self._user_dm_map:
+                channel_id = self._user_dm_map[user_id]
+
             sent_msgs = await self._client.send_to_channel_or_user(
                 channel_id=channel_id,
                 user_id=user_id,
@@ -164,6 +173,10 @@ class DiscordAdapterPlugin(MaiBotPlugin):
         if not self._is_gateway_ready or self._bot_user is None:
             self.ctx.logger.warning("网关尚未完成握手，忽略入站消息")
             return
+
+        # 若是私聊消息，缓存 author_id -> DM channel_id 映射
+        if message.guild is None:
+            self._user_dm_map[str(message.author.id)] = str(message.channel.id)
 
         bot_account_id = str(self._bot_user.id)
         host_payload = discord_message_to_host(message, bot_account_id)

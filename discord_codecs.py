@@ -113,7 +113,9 @@ def split_text_into_chunks(text: str, max_length: int = MAX_DISCORD_MESSAGE_LENG
 
 
 def parse_host_outbound_message(
-    host_msg: Dict[str, Any]
+    host_msg: Dict[str, Any],
+    route: Optional[Dict[str, Any]] = None,
+    bot_id: Optional[str] = None,
 ) -> Tuple[Optional[str], Optional[str], str, List[str], Optional[str]]:
     """解析 Host 出站消息。
 
@@ -124,9 +126,32 @@ def parse_host_outbound_message(
     group_info = msg_info.get("group_info") or {}
     user_info = msg_info.get("user_info") or {}
     add_cfg = msg_info.get("additional_config") or {}
+    route_dict = route or {}
 
-    channel_id = str(group_info.get("group_id") or add_cfg.get("channel_id") or "").strip() or None
-    user_id = str(user_info.get("user_id") or "").strip() or None
+    # 1. 优先提取目标频道 ID
+    channel_id = str(
+        group_info.get("group_id")
+        or add_cfg.get("channel_id")
+        or add_cfg.get("platform_io_target_group_id")
+        or route_dict.get("group_id")
+        or route_dict.get("target_group_id")
+        or ""
+    ).strip() or None
+
+    # 2. 提取目标用户 ID (私聊时 Host 会把目标塞在 platform_io_target_user_id 或 route 中)
+    target_user_id = str(
+        add_cfg.get("platform_io_target_user_id")
+        or add_cfg.get("target_user_id")
+        or route_dict.get("user_id")
+        or route_dict.get("target_user_id")
+        or ""
+    ).strip() or None
+
+    # 若未找到，且 user_info 中的 user_id 不是机器人自己，才采用
+    raw_user_id = str(user_info.get("user_id") or "").strip()
+    bot_id_str = str(bot_id or "").strip()
+    if not target_user_id and raw_user_id and (not bot_id_str or raw_user_id != bot_id_str):
+        target_user_id = raw_user_id
 
     text_parts: List[str] = []
     image_urls: List[str] = []
@@ -148,5 +173,30 @@ def parse_host_outbound_message(
                     image_urls.append(sdata)
             elif stype == "reply":
                 reply_to = str(sdata or "")
+            elif stype == "music":
+                # 兼容音乐卡片转为 Discord 可直接预览和点击的卡片链接
+                if isinstance(sdata, dict):
+                    m_type = str(sdata.get("type") or "")
+                    m_id = str(sdata.get("id") or "")
+                    m_url = str(sdata.get("url") or "")
+                    m_title = str(sdata.get("title") or "")
+                    m_content = str(sdata.get("content") or "")
+                    
+                    if m_url:
+                        info = f"{m_title} - {m_content}".strip(" -")
+                        text_parts.append(f"🎵 正在播放：{info}\n{m_url}" if info else f"🎵 正在播放：{m_url}")
+                    elif m_type == "163" and m_id:
+                        text_parts.append(f"🎵 正在播放网易云音乐：\nhttps://music.163.com/song?id={m_id}")
+                    elif m_type == "qq" and m_id:
+                        text_parts.append(f"🎵 正在播放QQ音乐：\nhttps://y.qq.com/n/ryqq/songDetail/{m_id}")
+                    elif m_title:
+                        text_parts.append(f"🎵 歌曲：{m_title}")
+            elif stype in ("voice", "voiceurl"):
+                if isinstance(sdata, dict):
+                    v_url = str(sdata.get("url") or "")
+                    if v_url.startswith("http"):
+                        text_parts.append(f"🎙️ 语音音频：{v_url}")
+                elif isinstance(sdata, str) and sdata.startswith("http"):
+                    text_parts.append(f"🎙️ 语音音频：{sdata}")
 
-    return channel_id, user_id, "".join(text_parts), image_urls, reply_to
+    return channel_id, target_user_id, "".join(text_parts), image_urls, reply_to
