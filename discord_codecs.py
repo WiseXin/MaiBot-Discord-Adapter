@@ -166,6 +166,14 @@ def parse_host_outbound_message(
                 continue
             stype = seg.get("type")
             sdata = seg.get("data")
+
+            # 解包 Host 的 DictComponent 包装: {"type": "dict", "data": {"type": "music", "data": ...}}
+            if stype == "dict" and isinstance(sdata, dict):
+                inner_type = sdata.get("type")
+                if inner_type:
+                    stype = inner_type
+                    sdata = sdata.get("data")
+
             if stype == "text":
                 text_parts.append(str(sdata or ""))
             elif stype == "image":
@@ -179,16 +187,27 @@ def parse_host_outbound_message(
                     m_type = str(sdata.get("type") or "")
                     m_id = str(sdata.get("id") or "")
                     m_url = str(sdata.get("url") or "")
-                    m_title = str(sdata.get("title") or "")
+                    m_title = str(sdata.get("title") or sdata.get("name") or "")
+                    m_artists = str(sdata.get("artists") or "")
                     m_content = str(sdata.get("content") or "")
                     
+                    info_list = [x for x in (m_title, m_artists or m_content) if x]
+                    info = " - ".join(info_list)
+                    
                     if m_url:
-                        info = f"{m_title} - {m_content}".strip(" -")
                         text_parts.append(f"🎵 正在播放：{info}\n{m_url}" if info else f"🎵 正在播放：{m_url}")
                     elif m_type == "163" and m_id:
-                        text_parts.append(f"🎵 正在播放网易云音乐：\nhttps://music.163.com/song?id={m_id}")
+                        text_parts.append(
+                            f"🎵 正在播放：{info}\nhttps://music.163.com/song?id={m_id}"
+                            if info
+                            else f"🎵 正在播放网易云音乐：\nhttps://music.163.com/song?id={m_id}"
+                        )
                     elif m_type == "qq" and m_id:
-                        text_parts.append(f"🎵 正在播放QQ音乐：\nhttps://y.qq.com/n/ryqq/songDetail/{m_id}")
+                        text_parts.append(
+                            f"🎵 正在播放：{info}\nhttps://y.qq.com/n/ryqq/songDetail/{m_id}"
+                            if info
+                            else f"🎵 正在播放QQ音乐：\nhttps://y.qq.com/n/ryqq/songDetail/{m_id}"
+                        )
                     elif m_title:
                         text_parts.append(f"🎵 歌曲：{m_title}")
             elif stype in ("voice", "voiceurl"):
