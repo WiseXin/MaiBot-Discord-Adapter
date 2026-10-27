@@ -5,8 +5,12 @@ import logging
 from typing import Callable, Coroutine, List, Optional
 import discord
 
-from .codecs import split_text_into_chunks
-from .config import DiscordAdapterConfig
+try:
+    from .discord_codecs import split_text_into_chunks
+    from .config import DiscordAdapterConfig
+except ImportError:
+    from discord_codecs import split_text_into_chunks
+    from config import DiscordAdapterConfig
 
 LOGGER = logging.getLogger("discord_adapter.client")
 

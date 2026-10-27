@@ -2,7 +2,10 @@
 
 from typing import Any, Dict, List, Optional, Tuple
 import discord
-from .constants import DEFAULT_SCOPE, MAX_DISCORD_MESSAGE_LENGTH, PLATFORM_NAME
+try:
+    from .constants import DEFAULT_SCOPE, MAX_DISCORD_MESSAGE_LENGTH, PLATFORM_NAME
+except ImportError:
+    from constants import DEFAULT_SCOPE, MAX_DISCORD_MESSAGE_LENGTH, PLATFORM_NAME
 
 
 def discord_message_to_host(

@@ -10,10 +10,16 @@ import discord
 
 from maibot_sdk import MaiBotPlugin, MessageGateway, PluginConfigBase
 
-from .client import DiscordGatewayClient
-from .codecs import discord_message_to_host, parse_host_outbound_message
-from .config import DiscordAdapterConfig
-from .constants import DEFAULT_SCOPE, GATEWAY_NAME, PLATFORM_NAME, PROTOCOL_NAME
+try:
+    from .client import DiscordGatewayClient
+    from .discord_codecs import discord_message_to_host, parse_host_outbound_message
+    from .config import DiscordAdapterConfig
+    from .constants import DEFAULT_SCOPE, GATEWAY_NAME, PLATFORM_NAME, PROTOCOL_NAME
+except ImportError:
+    from client import DiscordGatewayClient
+    from discord_codecs import discord_message_to_host, parse_host_outbound_message
+    from config import DiscordAdapterConfig
+    from constants import DEFAULT_SCOPE, GATEWAY_NAME, PLATFORM_NAME, PROTOCOL_NAME
 
 
 class DiscordAdapterPlugin(MaiBotPlugin):
